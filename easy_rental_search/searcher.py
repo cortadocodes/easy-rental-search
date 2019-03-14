@@ -11,7 +11,7 @@ CACHE_PATH = os.path.join('data', 'cache.pkl')
 
 
 def apply_filters_to_result(result):
-    for filter_ in conf.FILTERS.values():
+    for filter_ in conf.RESULT_FILTERS.values():
         if filter_(result) is False:
             return False
     return True
@@ -19,13 +19,13 @@ def apply_filters_to_result(result):
 
 def search(key, cache, criteria):
 
-    # if cache.is_recent_search():
-    #     latest_search_time, search = cache.get_most_recent_search(cache)
-    #
-    # else:
-    zoopla = Zoopla(api_key=key)
-    search = zoopla.property_listings(params=criteria)
-    cache[dt.datetime.now()] = search
+    if cache.is_recent_search():
+        latest_search_time, search = cache.get_most_recent_search(cache)
+
+    else:
+        zoopla = Zoopla(api_key=key)
+        search = zoopla.property_listings(params=criteria)
+        cache[dt.datetime.now()] = search
 
     # Adjust weekly price to monthly price.
     for result in search.listing:
@@ -38,5 +38,5 @@ def search(key, cache, criteria):
 
 if __name__ == '__main__':
     cache = SearchCache(CACHE_PATH)
-    search(conf.KEY, cache, conf.CRITERIA)
+    search(conf.KEY, cache, conf.SEARCH_CRITERIA)
     cache.save(CACHE_PATH)
